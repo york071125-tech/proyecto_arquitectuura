@@ -1,0 +1,3 @@
+{ "tipoDocumento": "01", "serie": "F001", "fechaEmision": "2026-10-19", "moneda": "PEN", "tipoOperacion": "0101",
+  "cliente": { "tipoDocIdentidad": "1", "numeroDocumento": "12345678", "nombre": "JUAN" },
+  "items": [ { "codigoInterno": "X", "descripcion": "x", "unidad": "NIU", "cantidad": 1, "valorUnitario": 1, "afectacionIgv": "10" } ] }

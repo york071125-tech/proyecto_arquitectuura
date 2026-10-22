@@ -1,0 +1,13 @@
+{
+  "tipoDocumento": "01",
+  "serie": "F001",
+  "fechaEmision": "2026-10-19",
+  "moneda": "PEN",
+  "tipoOperacion": "0101",
+  "cliente": { "tipoDocIdentidad": "6", "numeroDocumento": "20123456786", "nombre": "BODEGA EL SOL S.A.C." },
+  "items": [
+    { "codigoInterno": "PAP-AMA", "descripcion": "Papa amarilla", "unidad": "KGM", "cantidad": 12.5, "valorUnitario": 2.35, "afectacionIgv": "20" },
+    { "codigoInterno": "LEC-FRE", "descripcion": "Leche fresca de vaca", "unidad": "LTR", "cantidad": 40, "valorUnitario": 1.85, "descuento": 2.00, "afectacionIgv": "20" }
+  ],
+  "formaPago": { "tipo": "CONTADO" }
+}

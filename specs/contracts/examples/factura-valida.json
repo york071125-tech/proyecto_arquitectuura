@@ -1,0 +1,17 @@
+{
+  "tipoDocumento": "01",
+  "serie": "F001",
+  "fechaEmision": "2026-10-19",
+  "horaEmision": "10:30:00",
+  "moneda": "PEN",
+  "tipoOperacion": "0101",
+  "cliente": { "tipoDocIdentidad": "6", "numeroDocumento": "20123456786", "nombre": "BODEGA EL SOL S.A.C.", "direccion": { "direccion": "Jr. Progreso 123", "ubigeo": "100901" } },
+  "items": [
+    { "codigoInterno": "ARR-001", "descripcion": "Arroz extra saco 50 kg", "unidad": "BG", "cantidad": 10, "valorUnitario": 120.00, "afectacionIgv": "10" },
+    { "codigoInterno": "CERV-620", "descripcion": "Cerveza 620 ml", "unidad": "NIU", "cantidad": 24, "valorUnitario": 4.50, "afectacionIgv": "10", "sistemaIsc": "01", "tasaIsc": 17 },
+    { "codigoInterno": "BOL-001", "descripcion": "Bolsa plástica", "unidad": "NIU", "cantidad": 1, "valorUnitario": 0.00, "afectacionIgv": "10", "bolsasIcbper": 3 },
+    { "codigoInterno": "MUES-01", "descripcion": "Muestra gratuita azúcar 1 kg", "unidad": "KGM", "cantidad": 1, "valorUnitario": 3.50, "afectacionIgv": "13", "tipoPrecio": "02" }
+  ],
+  "formaPago": { "tipo": "CONTADO" },
+  "idempotencyKey": "venta-0001"
+}

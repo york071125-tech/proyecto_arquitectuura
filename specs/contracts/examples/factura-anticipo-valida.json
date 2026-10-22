@@ -1,0 +1,14 @@
+{
+  "tipoDocumento": "01",
+  "serie": "F001",
+  "fechaEmision": "2026-10-19",
+  "moneda": "PEN",
+  "tipoOperacion": "0104",
+  "cliente": { "tipoDocIdentidad": "6", "numeroDocumento": "20123456786", "nombre": "BODEGA EL SOL S.A.C." },
+  "items": [
+    { "codigoInterno": "MUE-COC", "descripcion": "Mueble de cocina a medida", "unidad": "NIU", "cantidad": 1, "valorUnitario": 1500.00, "afectacionIgv": "10" },
+    { "codigoInterno": "SRV-INS", "descripcion": "Servicio de instalación", "unidad": "ZZ", "cantidad": 1, "valorUnitario": 180.00, "afectacionIgv": "10" }
+  ],
+  "anticipos": [ { "tipoDocumento": "02", "serieNumero": "F001-120", "monto": 590.00 } ],
+  "formaPago": { "tipo": "CONTADO" }
+}

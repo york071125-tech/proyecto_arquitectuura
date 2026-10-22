@@ -1,0 +1,346 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://abc-software.example/schemas/maestros.schema.json",
+  "title": "DTO-maestros · Emisor, Serie, Cliente, Producto",
+  "$defs": {
+    "EmisorRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ruc",
+        "razonSocial",
+        "domicilioFiscal",
+        "modoEmision",
+        "entorno"
+      ],
+      "properties": {
+        "ruc": {
+          "$ref": "common.schema.json#/$defs/Ruc"
+        },
+        "razonSocial": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "nombreComercial": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "domicilioFiscal": {
+          "$ref": "common.schema.json#/$defs/Direccion"
+        },
+        "modoEmision": {
+          "type": "string",
+          "enum": [
+            "SEE_CONTRIBUYENTE",
+            "OSE"
+          ]
+        },
+        "entorno": {
+          "type": "string",
+          "enum": [
+            "BETA",
+            "PRODUCCION"
+          ]
+        },
+        "usuarioSol": {
+          "type": "string",
+          "maxLength": 20,
+          "description": "Sólo SEE_CONTRIBUYENTE. La clave SOL y el .pfx NO viajan en este DTO: se cargan por EP-03 y se guardan en el almacén seguro (ADR-06)."
+        },
+        "oseUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "Sólo modo OSE."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "modoEmision": {
+                "const": "OSE"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "oseUrl"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "modoEmision": {
+                "const": "SEE_CONTRIBUYENTE"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "usuarioSol"
+            ]
+          }
+        }
+      ]
+    },
+    "SerieRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tipoDocumento",
+        "serie"
+      ],
+      "properties": {
+        "tipoDocumento": {
+          "$ref": "common.schema.json#/$defs/TipoDocumento"
+        },
+        "serie": {
+          "$ref": "common.schema.json#/$defs/Serie"
+        },
+        "correlativoInicial": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 99999999,
+          "default": 0
+        }
+      },
+      "x-reglas": [
+        "RN-001",
+        "RN-002",
+        "serie F###/B### coherente con tipoDocumento: 01→F, 03→B; 07/08 heredan la letra del documento que modifican"
+      ]
+    },
+    "ClienteRequest": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/ClienteBase"
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "ClienteResponse": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/ClienteBase"
+        },
+        {
+          "type": "object",
+          "required": [
+            "id"
+          ],
+          "properties": {
+            "id": {
+              "$ref": "common.schema.json#/$defs/Uuid"
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "ProductoRequest": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/ProductoBase"
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "ProductoResponse": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/ProductoBase"
+        },
+        {
+          "type": "object",
+          "required": [
+            "id"
+          ],
+          "properties": {
+            "id": {
+              "$ref": "common.schema.json#/$defs/Uuid"
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "ClienteBase": {
+      "type": "object",
+      "required": [
+        "tipoDocIdentidad",
+        "numeroDocumento",
+        "nombre"
+      ],
+      "properties": {
+        "tipoDocIdentidad": {
+          "$ref": "common.schema.json#/$defs/TipoDocIdentidad"
+        },
+        "numeroDocumento": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 15
+        },
+        "nombre": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "direccion": {
+          "$ref": "common.schema.json#/$defs/Direccion"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "tipoDocIdentidad": {
+                "const": "6"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "numeroDocumento": {
+                "$ref": "common.schema.json#/$defs/Ruc"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "tipoDocIdentidad": {
+                "const": "1"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "numeroDocumento": {
+                "pattern": "^[0-9]{8}$"
+              }
+            }
+          }
+        }
+      ],
+      "x-reglas": [
+        "RN-010",
+        "RN-011",
+        "RN-012"
+      ]
+    },
+    "ProductoBase": {
+      "type": "object",
+      "required": [
+        "codigoInterno",
+        "descripcion",
+        "unidad",
+        "afectacionIgv",
+        "valorUnitario"
+      ],
+      "properties": {
+        "codigoInterno": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 30
+        },
+        "codigoSunat": {
+          "type": "string",
+          "pattern": "^[0-9]{8}$",
+          "description": "Catálogo 25 (UNSPSC v14_0801)."
+        },
+        "descripcion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 250
+        },
+        "unidad": {
+          "$ref": "common.schema.json#/$defs/UnidadMedida"
+        },
+        "afectacionIgv": {
+          "$ref": "common.schema.json#/$defs/AfectacionIgv"
+        },
+        "valorUnitario": {
+          "$ref": "common.schema.json#/$defs/Decimal10"
+        },
+        "sistemaIsc": {
+          "$ref": "common.schema.json#/$defs/SistemaIsc"
+        },
+        "tasaIsc": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Porcentaje; requerida si sistemaIsc=01 o 03."
+        },
+        "montoFijoIsc": {
+          "$ref": "common.schema.json#/$defs/Decimal10",
+          "description": "Requerido si sistemaIsc=02."
+        },
+        "aplicaIcbper": {
+          "type": "boolean",
+          "default": false
+        },
+        "inventariable": {
+          "type": "boolean",
+          "default": true
+        },
+        "pendienteTributario": {
+          "type": "boolean",
+          "readOnly": true,
+          "default": false,
+          "description": "true si fue creado por la migración con afectación IGV provisional (10) y debe completarse antes de facturar (RN-073)."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": [
+              "sistemaIsc"
+            ],
+            "properties": {
+              "sistemaIsc": {
+                "enum": [
+                  "01",
+                  "03"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "tasaIsc"
+            ]
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "sistemaIsc"
+            ],
+            "properties": {
+              "sistemaIsc": {
+                "const": "02"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "montoFijoIsc"
+            ]
+          }
+        }
+      ],
+      "x-reglas": [
+        "RN-040",
+        "RN-043",
+        "RN-042"
+      ]
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "tipoDocumento": "07",
+  "serie": "FC01",
+  "fechaEmision": "2026-10-20",
+  "moneda": "PEN",
+  "tipoOperacion": "0101",
+  "cliente": { "tipoDocIdentidad": "6", "numeroDocumento": "20123456786", "nombre": "BODEGA EL SOL S.A.C." },
+  "items": [ { "codigoInterno": "ARR-001", "descripcion": "Devolución arroz extra", "unidad": "BG", "cantidad": 1, "valorUnitario": 120.00, "afectacionIgv": "10" } ],
+  "documentoModificado": { "tipoDocumento": "01", "serie": "F001", "correlativo": 1, "motivoCodigo": "07", "sustento": "Devolución parcial por empaque dañado" }
+}

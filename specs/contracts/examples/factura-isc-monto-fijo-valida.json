@@ -1,0 +1,13 @@
+{
+  "tipoDocumento": "01",
+  "serie": "F001",
+  "fechaEmision": "2026-10-19",
+  "moneda": "PEN",
+  "tipoOperacion": "0101",
+  "cliente": { "tipoDocIdentidad": "6", "numeroDocumento": "20123456786", "nombre": "BODEGA EL SOL S.A.C." },
+  "items": [
+    { "codigoInterno": "DIE-B5", "descripcion": "Petróleo diésel B5", "unidad": "GLL", "cantidad": 12.5, "valorUnitario": 11.80, "afectacionIgv": "10", "sistemaIsc": "02", "montoFijoIsc": 1.37 },
+    { "codigoInterno": "ACM-1L", "descripcion": "Aceite de motor 1 L", "unidad": "NIU", "cantidad": 2, "valorUnitario": 24.50, "afectacionIgv": "10" }
+  ],
+  "formaPago": { "tipo": "CONTADO" }
+}

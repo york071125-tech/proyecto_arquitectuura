@@ -1,0 +1,5 @@
+{
+  "tipoDocumento": "03", "serie": "B001", "fechaEmision": "2026-10-19", "moneda": "PEN", "tipoOperacion": "0101",
+  "cliente": { "tipoDocIdentidad": "1", "numeroDocumento": "12345678", "nombre": "JUAN PEREZ" },
+  "items": [ { "codigoInterno": "ACE-1L", "descripcion": "Aceite 1 L", "unidad": "NIU", "cantidad": 2, "valorUnitario": 8.47, "afectacionIgv": "10" } ]
+}

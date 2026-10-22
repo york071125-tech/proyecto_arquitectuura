@@ -1,0 +1,14 @@
+{
+  "tipoDocumento": "01",
+  "serie": "F001",
+  "fechaEmision": "2026-10-19",
+  "moneda": "PEN",
+  "tipoOperacion": "0101",
+  "cliente": { "tipoDocIdentidad": "6", "numeroDocumento": "20123456786", "nombre": "BODEGA EL SOL S.A.C." },
+  "items": [
+    { "codigoInterno": "DET-2K", "descripcion": "Detergente en polvo 2 kg", "unidad": "NIU", "cantidad": 12, "valorUnitario": 15.678, "afectacionIgv": "10" },
+    { "codigoInterno": "LEJ-1L", "descripcion": "Lejía 1 L", "unidad": "NIU", "cantidad": 7, "valorUnitario": 2.50, "descuento": 0.75, "afectacionIgv": "10" }
+  ],
+  "descuentosGlobales": [ { "codigo": "03", "base": 241.78, "monto": 12.09 } ],
+  "formaPago": { "tipo": "CONTADO" }
+}

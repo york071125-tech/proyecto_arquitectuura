@@ -1,0 +1,22 @@
+{
+  "fichas": [
+    { "resultado": "MIGRADA", "tipo": "INGRESO", "cantidad": 100, "fecha": "2026-10-01", "producto": "ARROZ EXTRA SACO 50 KG" },
+    { "resultado": "MIGRADA", "tipo": "SALIDA", "cantidad": 30, "fecha": "2026-10-02", "producto": "ARROZ EXTRA SACO 50 KG" },
+    { "resultado": "MIGRADA", "tipo": "INGRESO", "cantidad": 250.75, "fecha": "2026-10-03", "producto": "AZUCAR RUBIA GRANEL" },
+    { "resultado": "MIGRADA", "tipo": "SALIDA", "cantidad": 48.5, "fecha": "2026-10-04", "producto": "AZUCAR RUBIA GRANEL" },
+    { "resultado": "MIGRADA", "tipo": "SALIDA", "cantidad": 12.25, "fecha": "2026-10-05", "producto": "AZUCAR RUBIA GRANEL" },
+    { "resultado": "MIGRADA", "tipo": "INGRESO", "cantidad": 40, "fecha": "2026-10-06", "producto": "ACEITE VEGETAL 1 L" },
+    { "resultado": "MIGRADA", "tipo": "SALIDA", "cantidad": 15, "fecha": "2026-10-07", "producto": "ACEITE VEGETAL 1 L" },
+    { "resultado": "RECHAZADA", "causa": "INGRESO_Y_SALIDA_A_LA_VEZ" },
+    { "resultado": "RECHAZADA", "causa": "SIN_MOVIMIENTO" },
+    { "resultado": "RECHAZADA", "causa": "FECHA_INVALIDA" },
+    { "resultado": "MIGRADA", "duplicadaDe": 2 },
+    { "resultado": "MIGRADA", "tipo": "SALIDA", "cantidad": 20, "fecha": "2026-10-10", "producto": "ARROZ EXTRA SACO 50 KG" },
+    { "resultado": "RECHAZADA", "causa": "CANTIDAD_INVALIDA" }
+  ],
+  "reporte": { "leidos": 13, "migrados": 9, "rechazados": 4 },
+  "movimientosNuevos": 8,
+  "productosCreados": 3,
+  "saldos": { "ARROZ EXTRA SACO 50 KG": 50, "AZUCAR RUBIA GRANEL": 190, "ACEITE VEGETAL 1 L": 25 },
+  "reproceso": { "leidos": 13, "migrados": 9, "rechazados": 4, "movimientosNuevos": 0 }
+}

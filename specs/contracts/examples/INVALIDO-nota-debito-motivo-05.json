@@ -1,0 +1,10 @@
+{
+  "tipoDocumento": "08",
+  "serie": "FD01",
+  "fechaEmision": "2026-10-20",
+  "moneda": "PEN",
+  "tipoOperacion": "0101",
+  "cliente": { "tipoDocIdentidad": "6", "numeroDocumento": "20123456786", "nombre": "BODEGA EL SOL S.A.C." },
+  "items": [ { "codigoInterno": "AJU-001", "descripcion": "Ajuste de precio arroz extra", "unidad": "ZZ", "cantidad": 1, "valorUnitario": 15.00, "afectacionIgv": "10" } ],
+  "documentoModificado": { "tipoDocumento": "01", "serie": "F001", "correlativo": 1, "motivoCodigo": "05", "sustento": "Motivo 05 no existe en el catálogo 10 (sólo 01–03)" }
+}

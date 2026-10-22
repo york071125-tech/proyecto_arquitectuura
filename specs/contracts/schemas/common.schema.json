@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://abc-software.example/schemas/common.schema.json",
+  "title": "DTO-common · Tipos compartidos y catálogos SUNAT",
+  "description": "Tipos base reutilizados por todos los contratos. Los enums reflejan los catálogos SUNAT (Anexo RS 245-2017). ⚠ Contrastar con el anexo vigente antes de producción.",
+  "$defs": {
+    "Ruc": {
+      "type": "string",
+      "pattern": "^(10|15|16|17|20)[0-9]{9}$",
+      "description": "RUC de 11 dígitos. x-reglas: RN-010 (dígito verificador módulo 11, pesos 5,4,3,2,7,6,5,4,3,2).",
+      "x-reglas": ["RN-010"]
+    },
+    "Ubigeo": {
+      "type": "string",
+      "pattern": "^[0-9]{6}$",
+      "description": "Catálogo 13 (INEI). x-reglas: RN-013 (debe existir en el catálogo)."
+    },
+    "Monto2": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Monto monetario n(12,2): máx. 2 decimales (x-reglas RN-024, validación de aplicación; JSON Schema no expresa decimales exactos con fiabilidad). Se serializa como número; el servidor opera con decimal exacto (ADR-04)."
+    },
+    "Decimal10": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Cantidad o precio unitario n(12,10) (guía XML SUNAT)."
+    },
+    "Moneda": {
+      "type": "string",
+      "enum": ["PEN", "USD"],
+      "description": "Catálogo 02 (ISO 4217). Ampliable."
+    },
+    "TipoDocumento": {
+      "type": "string",
+      "enum": ["01", "03", "07", "08"],
+      "description": "Catálogo 01 restringido a los comprobantes del alcance: 01 Factura, 03 Boleta, 07 N. Crédito, 08 N. Débito."
+    },
+    "TipoDocIdentidad": {
+      "type": "string",
+      "enum": ["0", "1", "4", "6", "7", "A", "B", "C", "D"],
+      "description": "Catálogo 06: 0 sin RUC, 1 DNI, 4 C. extranjería, 6 RUC, 7 Pasaporte, A céd. diplomática, B doc. país residencia, C TIN, D IN."
+    },
+    "AfectacionIgv": {
+      "type": "string",
+      "enum": ["10","11","12","13","14","15","16","17","20","21","30","31","32","33","34","35","36","40"],
+      "description": "Catálogo 07 (cbc:TaxExemptionReasonCode). 10-17 gravado, 20-21 exonerado, 30-36 inafecto, 40 exportación."
+    },
+    "SistemaIsc": {
+      "type": "string",
+      "enum": ["01", "02", "03"],
+      "description": "Catálogo 08 (cbc:TierRange): 01 Sistema al valor, 02 Monto fijo, 03 Precio de venta al público."
+    },
+    "CodigoTributo": {
+      "type": "string",
+      "enum": ["1000", "2000", "7152", "9995", "9996", "9997", "9998", "9999"],
+      "description": "Catálogo 05: 1000 IGV, 2000 ISC, 7152 ICBPER, 9995 Exportación, 9996 Gratuito, 9997 Exonerado, 9998 Inafecto, 9999 Otros."
+    },
+    "TipoPrecio": {
+      "type": "string",
+      "enum": ["01", "02"],
+      "description": "Catálogo 16: 01 precio unitario (incluye IGV), 02 valor referencial (operación no onerosa)."
+    },
+    "TipoOperacion": {
+      "type": "string",
+      "enum": ["0101", "0102", "0103", "0104", "0105", "0106", "0107", "0108", "0110", "0111"],
+      "description": "Catálogo 51 (cbc:ProfileID). Alcance fase 1: 0101, 0102, 0104."
+    },
+    "UnidadMedida": {
+      "type": "string",
+      "pattern": "^[A-Z0-9]{2,3}$",
+      "description": "Catálogo 03 (UN/ECE Rec. 20): NIU, KGM, LTR, BX, CS, ZZ, etc."
+    },
+    "Serie": {
+      "type": "string",
+      "pattern": "^[FB][A-Z0-9]{3}$",
+      "description": "RN-001. Factura/Notas de factura: F###. Boleta/Notas de boleta: B###."
+    },
+    "Correlativo": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 99999999,
+      "description": "RN-002."
+    },
+    "Direccion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["direccion", "ubigeo"],
+      "properties": {
+        "direccion": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "urbanizacion": { "type": "string", "maxLength": 25 },
+        "ubigeo": { "$ref": "#/$defs/Ubigeo" },
+        "codigoEstablecimiento": { "type": "string", "pattern": "^[0-9]{4}$", "description": "cbc:AddressTypeCode; 0000 = domicilio fiscal." }
+      }
+    },
+    "Estado": {
+      "type": "string",
+      "enum": ["BORRADOR", "FIRMADO", "PENDIENTE_ENVIO", "ENVIADO", "ACEPTADO", "ACEPTADO_CON_OBS", "RECHAZADO", "ANULADO"]
+    },
+    "Leyenda": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["codigo", "texto"],
+      "properties": {
+        "codigo": { "type": "string", "pattern": "^[0-9]{4}$", "description": "Catálogo 52 (1000 monto en letras, 1002 transferencia gratuita, 2001...)." },
+        "texto": { "type": "string", "minLength": 1, "maxLength": 100 }
+      }
+    },
+    "Uuid": { "type": "string", "format": "uuid" }
+  }
+}

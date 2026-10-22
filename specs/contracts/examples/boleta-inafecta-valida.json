@@ -1,0 +1,12 @@
+{
+  "tipoDocumento": "03",
+  "serie": "B001",
+  "fechaEmision": "2026-10-19",
+  "moneda": "PEN",
+  "tipoOperacion": "0101",
+  "cliente": { "tipoDocIdentidad": "1", "numeroDocumento": "12345678", "nombre": "JUAN PEREZ" },
+  "items": [
+    { "codigoInterno": "PEN-OCT", "descripcion": "Pensión de enseñanza octubre", "unidad": "ZZ", "cantidad": 1, "valorUnitario": 350.00, "afectacionIgv": "30" },
+    { "codigoInterno": "CUA-A4", "descripcion": "Cuaderno A4 100 hojas", "unidad": "NIU", "cantidad": 5, "valorUnitario": 2.65, "afectacionIgv": "10" }
+  ]
+}

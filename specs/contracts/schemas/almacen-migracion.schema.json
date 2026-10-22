@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://abc-software.example/schemas/almacen-migracion.schema.json",
+  "title": "DTO-almacen-migracion · Inventario y migración del legado",
+  "$defs": {
+    "FichaLegado": {
+      "type": "object",
+      "description": "Fila del software básico antiguo, tal cual (campos originales). Se acepta lo sucio: el validador la clasifica, no la rechaza por forma.",
+      "required": ["fecha", "producto", "nro_documento"],
+      "properties": {
+        "idOrigen": { "type": "string", "description": "Clave estable de la fila origen (PK o hash de la fila). Soporta RN-074." },
+        "fecha": { "type": "string", "description": "Texto libre (dd/mm/aaaa, aaaa-mm-dd...). Se normaliza en la migración." },
+        "ingreso": { "type": ["number", "string", "null"] },
+        "salida": { "type": ["number", "string", "null"] },
+        "producto": { "type": "string", "minLength": 1 },
+        "nro_documento": { "type": "string", "description": "Número interno informal; NO es serie-correlativo SUNAT (RN-071)." }
+      }
+    },
+    "MovimientoInventario": {
+      "type": "object",
+      "required": ["id", "tipo", "fecha", "productoId", "cantidad", "docReferencia"],
+      "properties": {
+        "id": { "$ref": "common.schema.json#/$defs/Uuid" },
+        "tipo": { "type": "string", "enum": ["INGRESO", "SALIDA", "AJUSTE"] },
+        "sentido": { "type": "string", "enum": ["AUMENTO", "DISMINUCION"], "description": "Sólo en AJUSTE: si suma o resta al saldo; la cantidad sigue siendo > 0 (RN-063)." },
+        "fecha": { "type": "string", "format": "date" },
+        "productoId": { "$ref": "common.schema.json#/$defs/Uuid" },
+        "cantidad": { "type": "number", "exclusiveMinimum": 0 },
+        "docReferencia": {
+          "type": "object",
+          "required": ["tipo", "numero"],
+          "properties": {
+            "tipo": { "type": "string", "enum": ["COMPROBANTE_SUNAT", "INTERNO_LEGADO", "AJUSTE_MANUAL"] },
+            "numero": { "type": "string" }
+          }
+        },
+        "origenLegacyId": { "type": "string" },
+        "datosOriginales": { "$ref": "#/$defs/FichaLegado", "description": "Copia íntegra de la ficha origen (RN-070)." }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "tipo": { "const": "AJUSTE" } }, "required": ["tipo"] },
+          "then": { "required": ["sentido"] },
+          "else": { "not": { "required": ["sentido"] } }
+        }
+      ],
+      "x-reglas": ["RN-060", "RN-063"]
+    },
+    "MigracionRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fuente", "modo"],
+      "properties": {
+        "fuente": { "type": "string", "enum": ["CSV", "EXCEL", "SQLITE", "DBF"], "description": "⚠ Confirmar formato real del software legado." },
+        "ruta": { "type": "string" },
+        "modo": { "type": "string", "enum": ["SIMULACION", "EJECUCION"] },
+        "mapeoProductos": {
+          "type": "object",
+          "description": "Nombre legado → codigoInterno, para resolver ambigüedades (RN-073).",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    },
+    "LoteMigracionResponse": {
+      "type": "object",
+      "required": ["id", "estado", "leidos", "migrados", "rechazados"],
+      "properties": {
+        "id": { "$ref": "common.schema.json#/$defs/Uuid" },
+        "estado": { "type": "string", "enum": ["SIMULADO", "EN_CURSO", "COMPLETADO", "FALLIDO"] },
+        "leidos": { "type": "integer", "minimum": 0 },
+        "migrados": { "type": "integer", "minimum": 0 },
+        "rechazados": { "type": "integer", "minimum": 0 },
+        "rechazos": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["idOrigen", "causa"],
+            "properties": {
+              "idOrigen": { "type": "string" },
+              "causa": { "type": "string", "enum": ["FECHA_INVALIDA", "PRODUCTO_AMBIGUO", "CANTIDAD_INVALIDA", "INGRESO_Y_SALIDA_A_LA_VEZ", "SIN_MOVIMIENTO"] },
+              "fichaOriginal": { "$ref": "#/$defs/FichaLegado" }
+            }
+          }
+        }
+      },
+      "x-reglas": ["RN-075: leidos = migrados + rechazados"]
+    }
+  }
+}

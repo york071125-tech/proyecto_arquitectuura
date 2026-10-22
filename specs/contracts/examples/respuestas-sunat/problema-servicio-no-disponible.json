@@ -1,0 +1,8 @@
+{
+  "_nota": "ejemplo sintético, no oficial",
+  "type": "https://abc-software.example/problemas/sunat-no-disponible",
+  "title": "SUNAT/OSE no disponible",
+  "status": 503,
+  "codigo": "SUNAT_NO_DISPONIBLE",
+  "detail": "No se obtuvo respuesta de SUNAT/OSE (sin conexión o excepción técnica del rango 0100–0999). Reintente más tarde."
+}

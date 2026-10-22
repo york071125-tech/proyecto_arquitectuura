@@ -1,0 +1,23 @@
+{
+  "name": "abc-facturacion-specs",
+  "private": true,
+  "type": "module",
+  "description": "Pruebas ejecutables de la especificación Spec-First (contratos, matriz de trazabilidad)",
+  "scripts": {
+    "validar": "node tests/contratos/validar-contratos.mjs",
+    "matriz": "node tests/trazabilidad/generar-matriz.mjs",
+    "verificar-matriz": "node tests/trazabilidad/verificar-matriz.mjs",
+    "lint": "redocly lint specs/contracts/abc-facturacion-api.yaml",
+    "test": "npm run validar && npm run calculo && npm run lotes && npm run kardex && npm run migracion && npm run matriz && npm run verificar-matriz && npm run docs",
+    "calculo": "node tests/calculo/calculo-referencia.mjs",
+    "lotes": "node tests/calculo/lotes-referencia.mjs",
+    "kardex": "node tests/calculo/kardex-referencia.mjs",
+    "migracion": "node tests/calculo/migracion-referencia.mjs",
+    "docs": "node tests/documentacion/verificar-referencias.mjs"
+  },
+  "devDependencies": {
+    "ajv": "8.17.1",
+    "ajv-formats": "3.0.1",
+    "@redocly/cli": "1.34.5"
+  }
+}

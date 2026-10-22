@@ -1,0 +1,3 @@
+{ "tipoDocumento": "03", "serie": "B001", "fechaEmision": "2026-10-19", "moneda": "PEN", "tipoOperacion": "0101",
+  "cliente": { "tipoDocIdentidad": "1", "numeroDocumento": "12345678", "nombre": "JUAN" },
+  "items": [ { "codigoInterno": "CIG", "descripcion": "Cigarrillos", "unidad": "NIU", "cantidad": 1, "valorUnitario": 10, "afectacionIgv": "10", "sistemaIsc": "01" } ] }

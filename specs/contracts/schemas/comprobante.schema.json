@@ -1,0 +1,757 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://abc-software.example/schemas/comprobante.schema.json",
+  "title": "DTO-comprobante · Emisión de Factura/Boleta/Notas y su respuesta",
+  "$defs": {
+    "ItemRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "codigoInterno",
+        "descripcion",
+        "unidad",
+        "cantidad",
+        "valorUnitario",
+        "afectacionIgv"
+      ],
+      "properties": {
+        "codigoInterno": {
+          "type": "string",
+          "maxLength": 30
+        },
+        "codigoSunat": {
+          "type": "string",
+          "pattern": "^[0-9]{8}$"
+        },
+        "descripcion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 250
+        },
+        "unidad": {
+          "$ref": "common.schema.json#/$defs/UnidadMedida"
+        },
+        "cantidad": {
+          "$ref": "common.schema.json#/$defs/Decimal10",
+          "exclusiveMinimum": 0
+        },
+        "valorUnitario": {
+          "$ref": "common.schema.json#/$defs/Decimal10",
+          "description": "Valor unitario SIN impuestos."
+        },
+        "tipoPrecio": {
+          "$ref": "common.schema.json#/$defs/TipoPrecio",
+          "default": "01"
+        },
+        "afectacionIgv": {
+          "$ref": "common.schema.json#/$defs/AfectacionIgv"
+        },
+        "sistemaIsc": {
+          "$ref": "common.schema.json#/$defs/SistemaIsc"
+        },
+        "tasaIsc": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "montoFijoIsc": {
+          "$ref": "common.schema.json#/$defs/Decimal10"
+        },
+        "bolsasIcbper": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Nº de bolsas plásticas; activa tributo 7152 (RN-042)."
+        },
+        "descuento": {
+          "$ref": "common.schema.json#/$defs/Monto2",
+          "description": "Descuento por ítem (cat. 53)."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": [
+              "sistemaIsc"
+            ],
+            "properties": {
+              "sistemaIsc": {
+                "enum": [
+                  "01",
+                  "03"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "tasaIsc"
+            ]
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "sistemaIsc"
+            ],
+            "properties": {
+              "sistemaIsc": {
+                "const": "02"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "montoFijoIsc"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "afectacionIgv": {
+                "enum": [
+                  "11",
+                  "12",
+                  "13",
+                  "14",
+                  "15",
+                  "16",
+                  "21",
+                  "31",
+                  "32",
+                  "33",
+                  "34",
+                  "35",
+                  "36"
+                ]
+              }
+            },
+            "required": [
+              "afectacionIgv"
+            ]
+          },
+          "then": {
+            "properties": {
+              "tipoPrecio": {
+                "const": "02"
+              }
+            },
+            "required": [
+              "tipoPrecio"
+            ]
+          }
+        }
+      ],
+      "x-reglas": [
+        "RN-021",
+        "RN-030",
+        "RN-031",
+        "RN-040",
+        "RN-042",
+        "RN-043"
+      ]
+    },
+    "DescuentoGlobal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "codigo",
+        "monto"
+      ],
+      "properties": {
+        "codigo": {
+          "type": "string",
+          "pattern": "^[0-9]{2}$",
+          "description": "Catálogo 53."
+        },
+        "monto": {
+          "$ref": "common.schema.json#/$defs/Monto2"
+        },
+        "base": {
+          "$ref": "common.schema.json#/$defs/Monto2"
+        }
+      }
+    },
+    "Anticipo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tipoDocumento",
+        "serieNumero",
+        "monto"
+      ],
+      "properties": {
+        "tipoDocumento": {
+          "type": "string",
+          "enum": [
+            "02",
+            "03"
+          ],
+          "description": "Catálogo 12: 02 factura anticipo, 03 boleta anticipo."
+        },
+        "serieNumero": {
+          "type": "string",
+          "pattern": "^[FB][A-Z0-9]{3}-[0-9]{1,8}$"
+        },
+        "monto": {
+          "$ref": "common.schema.json#/$defs/Monto2"
+        }
+      },
+      "x-reglas": [
+        "RN-033"
+      ]
+    },
+    "DocumentoModificado": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tipoDocumento",
+        "serie",
+        "correlativo",
+        "motivoCodigo",
+        "sustento"
+      ],
+      "properties": {
+        "tipoDocumento": {
+          "type": "string",
+          "enum": [
+            "01",
+            "03"
+          ]
+        },
+        "serie": {
+          "$ref": "common.schema.json#/$defs/Serie"
+        },
+        "correlativo": {
+          "$ref": "common.schema.json#/$defs/Correlativo"
+        },
+        "motivoCodigo": {
+          "type": "string",
+          "enum": [
+            "01",
+            "02",
+            "03",
+            "04",
+            "05",
+            "06",
+            "07",
+            "08",
+            "09",
+            "10"
+          ],
+          "description": "NC: catálogo 09 (01–10). ND: catálogo 10 (01–03). La coherencia con tipoDocumento se verifica en el contrato raíz."
+        },
+        "sustento": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 250
+        }
+      },
+      "x-reglas": [
+        "RN-004"
+      ]
+    },
+    "FormaPago": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tipo"
+      ],
+      "properties": {
+        "tipo": {
+          "type": "string",
+          "enum": [
+            "CONTADO",
+            "CREDITO"
+          ]
+        },
+        "cuotas": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "monto",
+              "fechaVencimiento"
+            ],
+            "properties": {
+              "monto": {
+                "$ref": "common.schema.json#/$defs/Monto2"
+              },
+              "fechaVencimiento": {
+                "type": "string",
+                "format": "date"
+              }
+            }
+          }
+        }
+      },
+      "if": {
+        "properties": {
+          "tipo": {
+            "const": "CREDITO"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "cuotas"
+        ]
+      }
+    },
+    "ClienteInline": {
+      "$ref": "maestros.schema.json#/$defs/ClienteRequest"
+    },
+    "ComprobanteEmitirRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tipoDocumento",
+        "serie",
+        "fechaEmision",
+        "moneda",
+        "tipoOperacion",
+        "cliente",
+        "items"
+      ],
+      "properties": {
+        "tipoDocumento": {
+          "$ref": "common.schema.json#/$defs/TipoDocumento"
+        },
+        "serie": {
+          "$ref": "common.schema.json#/$defs/Serie"
+        },
+        "fechaEmision": {
+          "type": "string",
+          "format": "date"
+        },
+        "horaEmision": {
+          "type": "string",
+          "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$"
+        },
+        "fechaVencimiento": {
+          "type": "string",
+          "format": "date"
+        },
+        "moneda": {
+          "$ref": "common.schema.json#/$defs/Moneda"
+        },
+        "tipoCambio": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "RN-036."
+        },
+        "tipoOperacion": {
+          "$ref": "common.schema.json#/$defs/TipoOperacion"
+        },
+        "cliente": {
+          "$ref": "#/$defs/ClienteInline"
+        },
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 500,
+          "items": {
+            "$ref": "#/$defs/ItemRequest"
+          }
+        },
+        "descuentosGlobales": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DescuentoGlobal"
+          }
+        },
+        "anticipos": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Anticipo"
+          }
+        },
+        "formaPago": {
+          "$ref": "#/$defs/FormaPago"
+        },
+        "documentoModificado": {
+          "$ref": "#/$defs/DocumentoModificado"
+        },
+        "observaciones": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "idempotencyKey": {
+          "type": "string",
+          "maxLength": 64,
+          "description": "Evita duplicar correlativos en reintentos (RN-052)."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "tipoDocumento": {
+                "enum": [
+                  "07",
+                  "08"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "documentoModificado"
+            ]
+          },
+          "else": {
+            "not": {
+              "required": [
+                "documentoModificado"
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "tipoDocumento": {
+                "const": "08"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "documentoModificado": {
+                "properties": {
+                  "motivoCodigo": {
+                    "enum": [
+                      "01",
+                      "02",
+                      "03"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "tipoDocumento": {
+                "const": "01"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "serie": {
+                "pattern": "^F"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "tipoDocumento": {
+                "const": "01"
+              },
+              "tipoOperacion": {
+                "not": {
+                  "const": "0102"
+                }
+              }
+            },
+            "required": [
+              "tipoDocumento",
+              "tipoOperacion"
+            ]
+          },
+          "then": {
+            "properties": {
+              "cliente": {
+                "properties": {
+                  "tipoDocIdentidad": {
+                    "const": "6"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "tipoDocumento": {
+                "const": "03"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "serie": {
+                "pattern": "^B"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "moneda": {
+                "const": "USD"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "tipoCambio"
+            ]
+          }
+        }
+      ],
+      "x-reglas": [
+        "RN-001",
+        "RN-004",
+        "RN-005",
+        "RN-012",
+        "RN-020…RN-024",
+        "RN-030…RN-036",
+        "RN-040…RN-045"
+      ]
+    },
+    "Totales": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "gravadas",
+        "exoneradas",
+        "inafectas",
+        "exportacion",
+        "gratuitas",
+        "isc",
+        "igv",
+        "icbper",
+        "descuentosGlobales",
+        "otrosCargos",
+        "anticipos",
+        "importeTotal"
+      ],
+      "properties": {
+        "gravadas": {
+          "$ref": "common.schema.json#/$defs/Monto2"
+        },
+        "exoneradas": {
+          "$ref": "common.schema.json#/$defs/Monto2"
+        },
+        "inafectas": {
+          "$ref": "common.schema.json#/$defs/Monto2"
+        },
+        "exportacion": {
+          "$ref": "common.schema.json#/$defs/Monto2"
+        },
+        "gratuitas": {
+          "$ref": "common.schema.json#/$defs/Monto2"
+        },
+        "isc": {
+          "$ref": "common.schema.json#/$defs/Monto2"
+        },
+        "igv": {
+          "$ref": "common.schema.json#/$defs/Monto2"
+        },
+        "icbper": {
+          "$ref": "common.schema.json#/$defs/Monto2"
+        },
+        "descuentosGlobales": {
+          "$ref": "common.schema.json#/$defs/Monto2"
+        },
+        "otrosCargos": {
+          "$ref": "common.schema.json#/$defs/Monto2"
+        },
+        "anticipos": {
+          "$ref": "common.schema.json#/$defs/Monto2"
+        },
+        "importeTotal": {
+          "$ref": "common.schema.json#/$defs/Monto2"
+        }
+      },
+      "x-reglas": [
+        "RN-022"
+      ]
+    },
+    "TributoLinea": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "codigo",
+        "baseImponible",
+        "monto"
+      ],
+      "properties": {
+        "codigo": {
+          "$ref": "common.schema.json#/$defs/CodigoTributo"
+        },
+        "baseImponible": {
+          "$ref": "common.schema.json#/$defs/Monto2"
+        },
+        "tasa": {
+          "type": "number",
+          "minimum": 0
+        },
+        "monto": {
+          "$ref": "common.schema.json#/$defs/Monto2"
+        },
+        "tierRange": {
+          "$ref": "common.schema.json#/$defs/SistemaIsc",
+          "description": "Sólo cuando codigo=2000 (ISC). Cat. 08."
+        }
+      }
+    },
+    "ItemResponse": {
+      "type": "object",
+      "required": [
+        "numero",
+        "descripcion",
+        "cantidad",
+        "valorVenta",
+        "precioUnitario",
+        "afectacionIgv",
+        "tributos"
+      ],
+      "properties": {
+        "numero": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "descripcion": {
+          "type": "string"
+        },
+        "cantidad": {
+          "$ref": "common.schema.json#/$defs/Decimal10"
+        },
+        "valorVenta": {
+          "$ref": "common.schema.json#/$defs/Monto2"
+        },
+        "precioUnitario": {
+          "$ref": "common.schema.json#/$defs/Decimal10"
+        },
+        "afectacionIgv": {
+          "$ref": "common.schema.json#/$defs/AfectacionIgv"
+        },
+        "tributos": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/TributoLinea"
+          }
+        }
+      }
+    },
+    "ResultadoSunat": {
+      "type": "object",
+      "required": [
+        "codigoRespuesta",
+        "descripcion"
+      ],
+      "properties": {
+        "codigoRespuesta": {
+          "type": "string",
+          "description": "ApplicationResponse/ResponseCode del CDR. 0 = aceptado."
+        },
+        "descripcion": {
+          "type": "string"
+        },
+        "observaciones": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "fechaRecepcion": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "ComprobanteResponse": {
+      "type": "object",
+      "required": [
+        "id",
+        "tipoDocumento",
+        "serie",
+        "correlativo",
+        "numero",
+        "estado",
+        "totales",
+        "leyendas",
+        "items"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "common.schema.json#/$defs/Uuid"
+        },
+        "tipoDocumento": {
+          "$ref": "common.schema.json#/$defs/TipoDocumento"
+        },
+        "serie": {
+          "$ref": "common.schema.json#/$defs/Serie"
+        },
+        "correlativo": {
+          "$ref": "common.schema.json#/$defs/Correlativo"
+        },
+        "numero": {
+          "type": "string",
+          "pattern": "^[FB][A-Z0-9]{3}-[0-9]{1,8}$",
+          "description": "Serie-correlativo."
+        },
+        "estado": {
+          "$ref": "common.schema.json#/$defs/Estado"
+        },
+        "fechaEmision": {
+          "type": "string",
+          "format": "date"
+        },
+        "moneda": {
+          "$ref": "common.schema.json#/$defs/Moneda"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ItemResponse"
+          }
+        },
+        "totales": {
+          "$ref": "#/$defs/Totales"
+        },
+        "leyendas": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/Leyenda"
+          }
+        },
+        "hashXml": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$",
+          "description": "SHA-256 del XML firmado (RN-053)."
+        },
+        "resultadoSunat": {
+          "$ref": "#/$defs/ResultadoSunat"
+        },
+        "enlaces": {
+          "type": "object",
+          "properties": {
+            "xml": {
+              "type": "string",
+              "format": "uri-reference"
+            },
+            "cdr": {
+              "type": "string",
+              "format": "uri-reference"
+            },
+            "pdf": {
+              "type": "string",
+              "format": "uri-reference"
+            }
+          }
+        }
+      }
+    }
+  }
+}
