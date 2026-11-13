@@ -1,0 +1,26 @@
+{
+  "tipoDocumento": "01",
+  "serie": "F002",
+  "fechaEmision": "2026-10-19",
+  "moneda": "USD",
+  "tipoCambio": "3.75",
+  "tipoOperacion": "0102",
+  "cliente": {
+    "tipoDocIdentidad": "0",
+    "numeroDocumento": "EXP-0001",
+    "nombre": "IMPORT CO LLC"
+  },
+  "items": [
+    {
+      "codigoInterno": "CAF-01",
+      "descripcion": "Cafe en grano 60 kg",
+      "unidad": "BG",
+      "cantidad": "10.00",
+      "valorUnitario": "150.00",
+      "afectacionIgv": "40"
+    }
+  ],
+  "formaPago": {
+    "tipo": "CONTADO"
+  }
+}

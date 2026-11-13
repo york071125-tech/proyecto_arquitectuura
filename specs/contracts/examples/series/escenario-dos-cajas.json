@@ -1,0 +1,15 @@
+{
+  "descripcion": "Dos cajas sin conexión, cada una con su serie exclusiva: la numeración no se cruza (RN-082, RN-083).",
+  "dispositivos": [
+    { "dispositivoId": "CAJA-01", "nombre": "Caja 1", "plataforma": "WINDOWS", "series": [{ "tipoDocumento": "01", "serie": "F001" }, { "tipoDocumento": "03", "serie": "B001" }] },
+    { "dispositivoId": "CAJA-02", "nombre": "Caja 2", "plataforma": "ANDROID", "series": [{ "tipoDocumento": "01", "serie": "F002" }, { "tipoDocumento": "03", "serie": "B002" }] }
+  ],
+  "emisiones": [
+    { "dispositivoId": "CAJA-01", "tipoDocumento": "01", "serie": "F001", "esperado": "F001-00000001" },
+    { "dispositivoId": "CAJA-02", "tipoDocumento": "01", "serie": "F002", "esperado": "F002-00000001" },
+    { "dispositivoId": "CAJA-01", "tipoDocumento": "01", "serie": "F001", "esperado": "F001-00000002" },
+    { "dispositivoId": "CAJA-02", "tipoDocumento": "01", "serie": "F001", "esperadoError": "SERIE_NO_ASIGNADA" },
+    { "dispositivoId": "CAJA-02", "tipoDocumento": "03", "serie": "B002", "esperado": "B002-00000001" },
+    { "dispositivoId": "CAJA-09", "tipoDocumento": "01", "serie": "F001", "esperadoError": "SERIE_NO_ASIGNADA" }
+  ]
+}

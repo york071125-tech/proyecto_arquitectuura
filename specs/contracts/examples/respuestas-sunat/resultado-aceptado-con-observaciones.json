@@ -1,0 +1,9 @@
+{
+  "_nota": "ejemplo sintético, no oficial",
+  "codigoRespuesta": "0",
+  "descripcion": "Comprobante F001-2 aceptado con observaciones.",
+  "observaciones": [
+    "4xxx · Observación ilustrativa del rango 4xxx: no impide la aceptación. El código y el texto reales los informa SUNAT/OSE."
+  ],
+  "fechaRecepcion": "2026-10-19T10:41:12-05:00"
+}

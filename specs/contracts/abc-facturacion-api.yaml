@@ -1,0 +1,574 @@
+openapi: 3.1.0
+info:
+  title: ABC Facturación Electrónica · API interna
+  version: 0.1.0-spec
+  description: |
+    Contrato de la API interna (EP-xx). Hoy la consume la UI MVC y el cliente Android/Windows;
+    mañana es el contrato de red de los microservicios (ver ../../docs/04-arquitectura.md §6).
+    Los esquemas viven en schemas/ y son la **fuente de verdad** (Spec-First).
+    Los puertos salientes hacia SUNAT/OSE están en contratos-externos.md.
+
+    Convención de errores (application/problem+json): **400** solicitud ilegible (JSON mal formado, parámetro de tipo incorrecto);
+    **401** sin token de sesión; **403** sin permiso o serie no asignada al dispositivo; **404** recurso inexistente;
+    **409** conflicto de estado (correlativo o serie duplicada, saldo negativo); **422** el JSON es válido pero incumple una regla
+    de negocio o de esquema; **202** aceptado sin conexión; **503** SUNAT/OSE no disponible.
+  license:
+    name: Uso académico
+    identifier: LicenseRef-Academic-Use
+servers:
+  - url: http://127.0.0.1:{puerto}/api/v1
+    description: Kestrel local (loopback) con token de sesión
+    variables:
+      puerto: { default: "5199" }
+security:
+  - sessionToken: []
+tags:
+  - name: Configuración
+    description: Datos del emisor, credenciales y series de comprobantes.
+  - name: Maestros
+    description: Clientes y productos usados por la facturación.
+  - name: Comprobantes
+    description: Emisión, consulta y descarga de comprobantes electrónicos.
+  - name: Lotes SUNAT
+    description: Resúmenes diarios, comunicaciones de baja y tickets asíncronos.
+  - name: Almacén
+    description: Movimientos de inventario y consulta del kardex.
+  - name: Libros electrónicos
+    description: Registro de Ventas 14.1 e Inventario Permanente en Unidades Físicas 12.1 (PLE).
+  - name: Migración
+    description: Importación idempotente de fichas del sistema legado.
+  - name: Referencia
+    description: Validaciones, catálogos y reportes de consulta.
+paths:
+  /emisor:
+    get:
+      tags: [Configuración]
+      operationId: obtenerEmisor
+      summary: EP-01 Obtener emisor
+      responses:
+        "200": { description: Emisor, content: { application/json: { schema: { $ref: "schemas/maestros.schema.json#/$defs/EmisorRequest" } } } }
+        "404": { $ref: "#/components/responses/Problema" }
+        "400": { $ref: "#/components/responses/SolicitudMalFormada" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+    put:
+      tags: [Configuración]
+      operationId: guardarEmisor
+      summary: EP-01 Crear o actualizar emisor (CU-01)
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "schemas/maestros.schema.json#/$defs/EmisorRequest" } } }
+      responses:
+        "200": { description: Guardado, content: { application/json: { schema: { $ref: "schemas/maestros.schema.json#/$defs/EmisorRequest" } } } }
+        "422": { $ref: "#/components/responses/Problema" }
+        "400": { $ref: "#/components/responses/SolicitudMalFormada" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+  /emisor/credenciales:
+    put:
+      tags: [Configuración]
+      operationId: cargarCredenciales
+      summary: EP-03 Cargar certificado .pfx y clave SOL al almacén seguro (CU-02)
+      description: Los secretos nunca se devuelven ni se registran en logs (ADR-06).
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [certificado, passwordCertificado]
+              properties:
+                certificado: { type: string, format: binary }
+                passwordCertificado: { type: string, writeOnly: true }
+                claveSol: { type: string, writeOnly: true }
+      responses:
+        "204": { description: Almacenado }
+        "422": { $ref: "#/components/responses/Problema" }
+        "400": { $ref: "#/components/responses/SolicitudMalFormada" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+  /series:
+    get:
+      tags: [Configuración]
+      operationId: listarSeries
+      summary: EP-02 Listar series y último correlativo
+      responses:
+        "200":
+          description: Series
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - $ref: "schemas/maestros.schema.json#/$defs/SerieRequest"
+                    - type: object
+                      properties: { ultimoCorrelativo: { type: integer } }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "400": { $ref: "#/components/responses/SolicitudMalFormada" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+    post:
+      tags: [Configuración]
+      operationId: crearSerie
+      summary: EP-02 Crear serie (CU-03)
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "schemas/maestros.schema.json#/$defs/SerieRequest" } } }
+      responses:
+        "201": { description: Creada }
+        "409": { $ref: "#/components/responses/Problema" }
+        "422": { $ref: "#/components/responses/Problema" }
+        "400": { $ref: "#/components/responses/SolicitudMalFormada" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+  /clientes:
+    get:
+      tags: [Maestros]
+      operationId: buscarClientes
+      summary: EP-04 Buscar clientes
+      parameters:
+        - { name: q, in: query, schema: { type: string } }
+      responses:
+        "200":
+          description: Resultados
+          content: { application/json: { schema: { type: array, items: { $ref: "schemas/maestros.schema.json#/$defs/ClienteResponse" } } } }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "400": { $ref: "#/components/responses/SolicitudMalFormada" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+    post:
+      tags: [Maestros]
+      operationId: crearCliente
+      summary: EP-04 Crear cliente (valida RN-010/011)
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "schemas/maestros.schema.json#/$defs/ClienteRequest" } } }
+      responses:
+        "201": { description: Creado, content: { application/json: { schema: { $ref: "schemas/maestros.schema.json#/$defs/ClienteResponse" } } } }
+        "422": { $ref: "#/components/responses/Problema" }
+        "400": { $ref: "#/components/responses/SolicitudMalFormada" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+  /productos:
+    get:
+      tags: [Maestros]
+      operationId: buscarProductos
+      summary: EP-13 Buscar productos
+      parameters:
+        - { name: q, in: query, schema: { type: string } }
+      responses:
+        "200":
+          description: Resultados
+          content: { application/json: { schema: { type: array, items: { $ref: "schemas/maestros.schema.json#/$defs/ProductoResponse" } } } }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "400": { $ref: "#/components/responses/SolicitudMalFormada" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+    post:
+      tags: [Maestros]
+      operationId: crearProducto
+      summary: EP-13 Crear producto (afectación IGV, ISC cat. 08, ICBPER)
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "schemas/maestros.schema.json#/$defs/ProductoRequest" } } }
+      responses:
+        "201": { description: Creado, content: { application/json: { schema: { $ref: "schemas/maestros.schema.json#/$defs/ProductoResponse" } } } }
+        "422": { $ref: "#/components/responses/Problema" }
+        "400": { $ref: "#/components/responses/SolicitudMalFormada" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+  /validaciones/ruc/{ruc}:
+    get:
+      tags: [Referencia]
+      operationId: validarRuc
+      summary: EP-10 Validar RUC (formato + dígito verificador + estado SUNAT) (CU-19)
+      parameters:
+        - { name: ruc, in: path, required: true, schema: { $ref: "schemas/common.schema.json#/$defs/Ruc" } }
+      responses:
+        "200":
+          description: Resultado
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ruc, formatoValido]
+                properties:
+                  ruc: { type: string }
+                  formatoValido: { type: boolean }
+                  razonSocial: { type: string }
+                  estado: { type: string, examples: [ACTIVO] }
+                  condicion: { type: string, examples: [HABIDO] }
+        "422": { $ref: "#/components/responses/Problema" }
+        "503": { $ref: "#/components/responses/Problema" }
+        "400": { $ref: "#/components/responses/SolicitudMalFormada" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+  /comprobantes:
+    post:
+      tags: [Comprobantes]
+      operationId: emitirComprobante
+      parameters:
+        - { $ref: "#/components/parameters/DispositivoId" }
+      summary: EP-05 Emitir Factura, Boleta, Nota de Crédito o Débito (CU-05…CU-08)
+      description: |
+        Orquesta: validar → calcular → reservar correlativo → generar UBL → firmar → enviar → CDR → salida de almacén.
+        Idempotente por `idempotencyKey`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "schemas/comprobante.schema.json#/$defs/ComprobanteEmitirRequest" }
+            examples:
+              factura:
+                summary: Factura con ISC al valor, ICBPER y bonificación
+                externalValue: examples/factura-valida.json
+      responses:
+        "201":
+          description: Emitido y respondido por SUNAT/OSE (estado ACEPTADO, ACEPTADO_CON_OBS o RECHAZADO)
+          content: { application/json: { schema: { $ref: "schemas/comprobante.schema.json#/$defs/ComprobanteResponse" } } }
+        "202":
+          description: Firmado y guardado; envío diferido (PENDIENTE_ENVIO) por falta de conexión (RN-050)
+          content: { application/json: { schema: { $ref: "schemas/comprobante.schema.json#/$defs/ComprobanteResponse" } } }
+        "409": { $ref: "#/components/responses/Problema" }
+        "422": { $ref: "#/components/responses/Problema" }
+        "400": { $ref: "#/components/responses/SolicitudMalFormada" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+    get:
+      tags: [Comprobantes]
+      operationId: listarComprobantes
+      summary: EP-06 Listar comprobantes
+      parameters:
+        - { name: desde, in: query, schema: { type: string, format: date } }
+        - { name: hasta, in: query, schema: { type: string, format: date } }
+        - { name: tipo, in: query, schema: { $ref: "schemas/common.schema.json#/$defs/TipoDocumento" } }
+        - { name: estado, in: query, schema: { $ref: "schemas/common.schema.json#/$defs/Estado" } }
+        - { name: pagina, in: query, schema: { type: integer, minimum: 1, default: 1 } }
+        - { name: tamano, in: query, schema: { type: integer, minimum: 1, maximum: 200, default: 50 } }
+      responses:
+        "200":
+          description: Página de resultados
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [total, items]
+                properties:
+                  total: { type: integer }
+                  items: { type: array, items: { $ref: "schemas/comprobante.schema.json#/$defs/ComprobanteResponse" } }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "400": { $ref: "#/components/responses/SolicitudMalFormada" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+  /comprobantes/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { $ref: "schemas/common.schema.json#/$defs/Uuid" } }
+    get:
+      tags: [Comprobantes]
+      operationId: obtenerComprobante
+      summary: EP-06 Detalle de comprobante
+      responses:
+        "200": { description: Detalle, content: { application/json: { schema: { $ref: "schemas/comprobante.schema.json#/$defs/ComprobanteResponse" } } } }
+        "404": { $ref: "#/components/responses/Problema" }
+        "400": { $ref: "#/components/responses/SolicitudMalFormada" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+  /comprobantes/{id}/xml:
+    parameters:
+      - { name: id, in: path, required: true, schema: { $ref: "schemas/common.schema.json#/$defs/Uuid" } }
+    get:
+      tags: [Comprobantes]
+      operationId: descargarXml
+      summary: EP-07 XML UBL 2.1 firmado
+      responses:
+        "200": { description: XML, content: { application/xml: { schema: { type: string } } } }
+        "404": { $ref: "#/components/responses/Problema" }
+        "400": { $ref: "#/components/responses/SolicitudMalFormada" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+  /comprobantes/{id}/cdr:
+    parameters:
+      - { name: id, in: path, required: true, schema: { $ref: "schemas/common.schema.json#/$defs/Uuid" } }
+    get:
+      tags: [Comprobantes]
+      operationId: descargarCdr
+      summary: EP-07 Constancia de recepción (ZIP con ApplicationResponse)
+      responses:
+        "200": { description: ZIP, content: { application/zip: { schema: { type: string, format: binary } } } }
+        "404": { $ref: "#/components/responses/Problema" }
+        "400": { $ref: "#/components/responses/SolicitudMalFormada" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+  /comprobantes/{id}/pdf:
+    parameters:
+      - { name: id, in: path, required: true, schema: { $ref: "schemas/common.schema.json#/$defs/Uuid" } }
+    get:
+      tags: [Comprobantes]
+      operationId: descargarPdf
+      summary: EP-07 Representación impresa
+      responses:
+        "200": { description: PDF, content: { application/pdf: { schema: { type: string, format: binary } } } }
+        "404": { $ref: "#/components/responses/Problema" }
+        "400": { $ref: "#/components/responses/SolicitudMalFormada" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+  /comprobantes/{id}/reenviar:
+    parameters:
+      - { name: id, in: path, required: true, schema: { $ref: "schemas/common.schema.json#/$defs/Uuid" } }
+    post:
+      tags: [Comprobantes]
+      operationId: reenviarComprobante
+      summary: EP-11 Reenviar pendiente (CU-13). Si ya fue ENVIADO consulta estado, no reenvía (RN-052)
+      responses:
+        "200": { description: Estado actualizado, content: { application/json: { schema: { $ref: "schemas/comprobante.schema.json#/$defs/ComprobanteResponse" } } } }
+        "409": { $ref: "#/components/responses/Problema" }
+        "400": { $ref: "#/components/responses/SolicitudMalFormada" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+  /comprobantes/{id}/consultar-estado:
+    parameters:
+      - { name: id, in: path, required: true, schema: { $ref: "schemas/common.schema.json#/$defs/Uuid" } }
+    post:
+      tags: [Comprobantes]
+      operationId: consultarEstado
+      summary: EP-12 Reconsultar estado y CDR en SUNAT (CU-11; getStatus/getStatusCdr)
+      responses:
+        "200": { description: Estado actualizado, content: { application/json: { schema: { $ref: "schemas/comprobante.schema.json#/$defs/ComprobanteResponse" } } } }
+        "404": { $ref: "#/components/responses/Problema" }
+        "503": { $ref: "#/components/responses/Problema" }
+        "400": { $ref: "#/components/responses/SolicitudMalFormada" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+  /resumenes-diarios:
+    post:
+      tags: [Lotes SUNAT]
+      operationId: enviarResumenDiario
+      summary: EP-08 Generar y enviar Resumen Diario de boletas (CU-09)
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "schemas/operaciones.schema.json#/$defs/ResumenDiarioRequest" } } }
+      responses:
+        "202": { description: Ticket generado, content: { application/json: { schema: { $ref: "schemas/operaciones.schema.json#/$defs/LoteEnvioResponse" } } } }
+        "422": { $ref: "#/components/responses/Problema" }
+        "400": { $ref: "#/components/responses/SolicitudMalFormada" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+  /comunicaciones-baja:
+    post:
+      tags: [Lotes SUNAT]
+      operationId: enviarComunicacionBaja
+      summary: EP-09 Comunicación de baja (CU-10)
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "schemas/operaciones.schema.json#/$defs/ComunicacionBajaRequest" } } }
+      responses:
+        "202": { description: Ticket generado, content: { application/json: { schema: { $ref: "schemas/operaciones.schema.json#/$defs/LoteEnvioResponse" } } } }
+        "422": { $ref: "#/components/responses/Problema" }
+        "400": { $ref: "#/components/responses/SolicitudMalFormada" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+  /lotes/{ticket}:
+    get:
+      tags: [Lotes SUNAT]
+      operationId: consultarLote
+      summary: EP-08/09 Consultar estado de un ticket (getStatus)
+      parameters:
+        - { name: ticket, in: path, required: true, schema: { type: string } }
+      responses:
+        "200": { description: Estado, content: { application/json: { schema: { $ref: "schemas/operaciones.schema.json#/$defs/LoteEnvioResponse" } } } }
+        "404": { $ref: "#/components/responses/Problema" }
+        "400": { $ref: "#/components/responses/SolicitudMalFormada" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+  /almacen/movimientos:
+    post:
+      tags: [Almacén]
+      operationId: registrarMovimiento
+      summary: EP-14 Registrar ingreso/salida/ajuste (CU-14, CU-15)
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "schemas/almacen-migracion.schema.json#/$defs/MovimientoInventario" } } }
+      responses:
+        "201": { description: Registrado, content: { application/json: { schema: { $ref: "schemas/almacen-migracion.schema.json#/$defs/MovimientoInventario" } } } }
+        "409": { $ref: "#/components/responses/Problema" }   # saldo negativo: ESTADO_NO_PERMITIDO (RF-0005-06)
+        "422": { $ref: "#/components/responses/Problema" }
+        "400": { $ref: "#/components/responses/SolicitudMalFormada" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+  /almacen/kardex:
+    get:
+      tags: [Almacén]
+      operationId: obtenerKardex
+      summary: EP-14 Kardex / Inventario Permanente por producto (CU-16, RS 234-2006)
+      parameters:
+        - { name: productoId, in: query, required: true, schema: { $ref: "schemas/common.schema.json#/$defs/Uuid" } }
+        - { name: desde, in: query, schema: { type: string, format: date } }
+        - { name: hasta, in: query, schema: { type: string, format: date } }
+      responses:
+        "200":
+          description: Movimientos con saldo
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - $ref: "schemas/almacen-migracion.schema.json#/$defs/MovimientoInventario"
+                    - type: object
+                      properties: { saldoCantidad: { type: number } }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "400": { $ref: "#/components/responses/SolicitudMalFormada" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+  /migracion/lotes:
+    post:
+      tags: [Migración]
+      operationId: iniciarMigracion
+      summary: EP-15 Simular o ejecutar migración del legado (CU-17). Idempotente (RN-074)
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "schemas/almacen-migracion.schema.json#/$defs/MigracionRequest" } } }
+      responses:
+        "202": { description: Lote creado, content: { application/json: { schema: { $ref: "schemas/almacen-migracion.schema.json#/$defs/LoteMigracionResponse" } } } }
+        "422": { $ref: "#/components/responses/Problema" }
+        "400": { $ref: "#/components/responses/SolicitudMalFormada" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+  /migracion/lotes/{id}:
+    get:
+      tags: [Migración]
+      operationId: obtenerLoteMigracion
+      summary: EP-15 Resultado y rechazos del lote
+      parameters:
+        - { name: id, in: path, required: true, schema: { $ref: "schemas/common.schema.json#/$defs/Uuid" } }
+      responses:
+        "200": { description: Lote, content: { application/json: { schema: { $ref: "schemas/almacen-migracion.schema.json#/$defs/LoteMigracionResponse" } } } }
+        "404": { $ref: "#/components/responses/Problema" }
+        "400": { $ref: "#/components/responses/SolicitudMalFormada" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+  /catalogos/{numero}:
+    get:
+      tags: [Referencia]
+      operationId: obtenerCatalogo
+      summary: EP-16 Catálogo SUNAT vigente (p. ej. 08 = sistema de cálculo del ISC)
+      parameters:
+        - { name: numero, in: path, required: true, schema: { type: string, pattern: "^[0-9]{2}$" }, example: "08" }
+      responses:
+        "200":
+          description: Entradas del catálogo
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required: [codigo, descripcion]
+                  properties:
+                    codigo: { type: string }
+                    descripcion: { type: string }
+                    vigenteDesde: { type: string, format: date }
+                    vigenteHasta: { type: string, format: date }
+        "404": { $ref: "#/components/responses/Problema" }
+        "400": { $ref: "#/components/responses/SolicitudMalFormada" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+  /dispositivos:
+    get:
+      tags: [Configuración]
+      operationId: listarDispositivos
+      summary: EP-18 Listar dispositivos y sus series asignadas (RN-082)
+      responses:
+        "200":
+          description: Dispositivos registrados
+          content: { application/json: { schema: { type: array, items: { $ref: "schemas/maestros.schema.json#/$defs/DispositivoRequest" } } } }
+        "400": { $ref: "#/components/responses/SolicitudMalFormada" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+    post:
+      tags: [Configuración]
+      operationId: registrarDispositivo
+      summary: EP-18 Registrar un dispositivo y asignarle series exclusivas (RN-082, RN-083)
+      description: |
+        Solo el administrador. Cada dispositivo (caja MSI o APK) emite sin conexión con su propia base de datos,
+        por eso una serie `(tipoDocumento, serie)` solo puede pertenecer a UN dispositivo: F001 en la caja 1, F002 en la caja 2.
+        Una serie ya asignada a otro dispositivo se rechaza con 409 `SERIE_DUPLICADA`.
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "schemas/maestros.schema.json#/$defs/DispositivoRequest" } } }
+      responses:
+        "201": { description: Dispositivo registrado, content: { application/json: { schema: { $ref: "schemas/maestros.schema.json#/$defs/DispositivoRequest" } } } }
+        "409": { $ref: "#/components/responses/Problema" }
+        "422": { $ref: "#/components/responses/Problema" }
+        "400": { $ref: "#/components/responses/SolicitudMalFormada" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+  /libros/registro-ventas/{periodo}:
+    get:
+      tags: [Libros electrónicos]
+      operationId: registroVentas
+      summary: EP-17 Registro de Ventas e Ingresos, Formato 14.1 (CU-18, RN-084)
+      parameters:
+        - { name: periodo, in: path, required: true, description: "Periodo PLE AAAAMM00", schema: { $ref: "schemas/common.schema.json#/$defs/PeriodoPle" } }
+      responses:
+        "200":
+          description: |
+            Libro del periodo. `text/plain`: una línea por comprobante con los campos 1 a 34 separados por «|» (estructura PLE).
+            `application/json`: las mismas filas como DTO.
+          content:
+            text/plain: { schema: { type: string } }
+            application/json: { schema: { type: array, items: { $ref: "schemas/libros.schema.json#/$defs/RegistroVentasFila" } } }
+        "422": { $ref: "#/components/responses/Problema" }
+        "400": { $ref: "#/components/responses/SolicitudMalFormada" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+  /libros/inventario-permanente-fisico/{periodo}:
+    get:
+      tags: [Libros electrónicos]
+      operationId: inventarioPermanenteFisico
+      summary: EP-19 Inventario Permanente en Unidades Físicas, Formato 12.1 (CU-16, RN-085)
+      parameters:
+        - { name: periodo, in: path, required: true, description: "Periodo PLE AAAAMM00", schema: { $ref: "schemas/common.schema.json#/$defs/PeriodoPle" } }
+      responses:
+        "200":
+          description: |
+            Libro del periodo. `text/plain`: campos 1 a 19 separados por «|»; `application/json`: filas del DTO.
+            El 13.1 valorizado es otro formato y no se cubre aquí (RN-062).
+          content:
+            text/plain: { schema: { type: string } }
+            application/json: { schema: { type: array, items: { $ref: "schemas/libros.schema.json#/$defs/RegistroInventarioFisicoFila" } } }
+        "422": { $ref: "#/components/responses/Problema" }
+        "400": { $ref: "#/components/responses/SolicitudMalFormada" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+components:
+  parameters:
+    DispositivoId:
+      name: X-Dispositivo-Id
+      in: header
+      required: true
+      description: Dispositivo (caja) que emite. La serie del comprobante debe estar asignada a este dispositivo (RN-082); si no, 403 SERIE_NO_ASIGNADA.
+      schema: { $ref: "schemas/common.schema.json#/$defs/DispositivoId" }
+  securitySchemes:
+    sessionToken:
+      type: apiKey
+      in: header
+      name: X-Session-Token
+      description: Token generado por arranque del host; Kestrel sólo escucha en loopback.
+  responses:
+    Problema:
+      description: Error (RFC 7807)
+      content:
+        application/problem+json:
+          schema: { $ref: "schemas/operaciones.schema.json#/$defs/Problema" }
+    SolicitudMalFormada:
+      description: 400 · La solicitud no se puede interpretar (JSON mal formado o parámetro ilegible). Las reglas de negocio responden 422.
+      content:
+        application/problem+json:
+          schema: { $ref: "schemas/operaciones.schema.json#/$defs/Problema" }
+    NoAutenticado:
+      description: 401 · Falta o es inválido el token de sesión (X-Session-Token).
+      content:
+        application/problem+json:
+          schema: { $ref: "schemas/operaciones.schema.json#/$defs/Problema" }
+    Prohibido:
+      description: 403 · El usuario o el dispositivo no tiene permiso para la operación (p. ej. serie no asignada al dispositivo).
+      content:
+        application/problem+json:
+          schema: { $ref: "schemas/operaciones.schema.json#/$defs/Problema" }

@@ -1,0 +1,8 @@
+{
+  "descripcion": "Error de configuración que el ingeniero señaló: dos cajas con la MISMA serie F001 duplicarían correlativos. El registro debe rechazarlo.",
+  "dispositivos": [
+    { "dispositivoId": "CAJA-01", "nombre": "Caja 1", "plataforma": "WINDOWS", "series": [{ "tipoDocumento": "01", "serie": "F001" }] },
+    { "dispositivoId": "CAJA-02", "nombre": "Caja 2", "plataforma": "ANDROID", "series": [{ "tipoDocumento": "01", "serie": "F001" }] }
+  ],
+  "esperadoErrorAlRegistrar": "SERIE_DUPLICADA"
+}

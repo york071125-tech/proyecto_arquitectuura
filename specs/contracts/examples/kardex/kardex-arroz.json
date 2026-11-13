@@ -1,0 +1,100 @@
+{
+  "descripcion": "ARR-001 Arroz extra saco 50 kg (unidad BG)",
+  "productoId": "7c1e4a52-3b9d-4f0a-9e21-5a6b7c8d9e01",
+  "saldoInicial": 0,
+  "pasos": [
+    {
+      "movimiento": {
+        "id": "0b5f3c2e-1a4d-4c8b-9f10-000000000001",
+        "tipo": "INGRESO",
+        "fecha": "2026-10-01",
+        "productoId": "7c1e4a52-3b9d-4f0a-9e21-5a6b7c8d9e01",
+        "cantidad": 100,
+        "docReferencia": {
+          "tipo": "COMPROBANTE_SUNAT",
+          "numero": "F010-1234"
+        },
+        "codigoEstablecimiento": "0000",
+        "tipoExistencia": "01",
+        "tipoOperacionTabla12": "02",
+        "documentoSoporte": {
+          "tipoTabla10": "01",
+          "serie": "F010",
+          "numero": "1234"
+        },
+        "unidadTabla6": "BG"
+      },
+      "saldoEsperado": 100
+    },
+    {
+      "movimiento": {
+        "id": "0b5f3c2e-1a4d-4c8b-9f10-000000000002",
+        "tipo": "SALIDA",
+        "fecha": "2026-10-05",
+        "productoId": "7c1e4a52-3b9d-4f0a-9e21-5a6b7c8d9e01",
+        "cantidad": 30,
+        "docReferencia": {
+          "tipo": "COMPROBANTE_SUNAT",
+          "numero": "F001-5"
+        },
+        "codigoEstablecimiento": "0000",
+        "tipoExistencia": "01",
+        "tipoOperacionTabla12": "01",
+        "documentoSoporte": {
+          "tipoTabla10": "01",
+          "serie": "F001",
+          "numero": "5"
+        },
+        "unidadTabla6": "BG"
+      },
+      "saldoEsperado": 70
+    },
+    {
+      "movimiento": {
+        "id": "0b5f3c2e-1a4d-4c8b-9f10-000000000003",
+        "tipo": "AJUSTE",
+        "sentido": "DISMINUCION",
+        "fecha": "2026-10-10",
+        "productoId": "7c1e4a52-3b9d-4f0a-9e21-5a6b7c8d9e01",
+        "cantidad": 5,
+        "docReferencia": {
+          "tipo": "AJUSTE_MANUAL",
+          "numero": "AJ-0001"
+        },
+        "codigoEstablecimiento": "0000",
+        "tipoExistencia": "01",
+        "tipoOperacionTabla12": "99",
+        "documentoSoporte": {
+          "tipoTabla10": "00",
+          "serie": "0",
+          "numero": "0"
+        },
+        "unidadTabla6": "BG"
+      },
+      "saldoEsperado": 65
+    },
+    {
+      "movimiento": {
+        "id": "0b5f3c2e-1a4d-4c8b-9f10-000000000004",
+        "tipo": "SALIDA",
+        "fecha": "2026-10-15",
+        "productoId": "7c1e4a52-3b9d-4f0a-9e21-5a6b7c8d9e01",
+        "cantidad": 20,
+        "docReferencia": {
+          "tipo": "COMPROBANTE_SUNAT",
+          "numero": "F001-6"
+        },
+        "codigoEstablecimiento": "0000",
+        "tipoExistencia": "01",
+        "tipoOperacionTabla12": "01",
+        "documentoSoporte": {
+          "tipoTabla10": "01",
+          "serie": "F001",
+          "numero": "6"
+        },
+        "unidadTabla6": "BG"
+      },
+      "saldoEsperado": 45
+    }
+  ]
+}

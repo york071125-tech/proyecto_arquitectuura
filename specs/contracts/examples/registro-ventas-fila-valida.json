@@ -1,0 +1,23 @@
+{
+  "periodo": "20261000",
+  "cuo": "F001-1",
+  "correlativoAsiento": "M1",
+  "fechaEmision": "2026-10-19",
+  "tipoComprobante": "01",
+  "serie": "F001",
+  "numero": "1",
+  "tipoDocIdentidadCliente": "6",
+  "numeroDocIdentidadCliente": "20123456786",
+  "razonSocialCliente": "BODEGA EL SOL S.A.C.",
+  "valorFacturadoExportacion": "0.00",
+  "baseImponibleGravada": "1308.00",
+  "igvIpm": "238.74",
+  "importeExonerada": "0.00",
+  "importeInafecta": "0.00",
+  "isc": "18.36",
+  "icbper": "1.50",
+  "importeTotal": "1566.60",
+  "moneda": "PEN",
+  "tipoCambio": "1.000",
+  "estado": "1"
+}

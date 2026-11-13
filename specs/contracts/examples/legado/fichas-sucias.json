@@ -1,0 +1,18 @@
+{
+  "_nota": "fichas sintéticas, no extraídas del software real: su formato está pendiente (T-0006-03)",
+  "fichas": [
+    { "fecha": "01/10/2026", "ingreso": 100, "salida": "", "producto": "Arroz extra saco 50 kg", "nro_documento": "ING-0001" },
+    { "fecha": "2026-10-02", "ingreso": null, "salida": 30, "producto": "ARROZ EXTRA SACO 50 KG", "nro_documento": "V-0101" },
+    { "fecha": "03/10/2026", "ingreso": "250,75", "salida": null, "producto": "Azúcar rubia granel", "nro_documento": "ING-0002" },
+    { "fecha": "2026-10-04", "ingreso": null, "salida": "48,5", "producto": "AZUCAR RUBIA GRANEL", "nro_documento": "V-0102" },
+    { "fecha": "05/10/2026", "ingreso": null, "salida": "12,25", "producto": "  azucar  rubia granel ", "nro_documento": "V-0103" },
+    { "fecha": "06/10/2026", "ingreso": 40, "salida": null, "producto": "Aceite vegetal 1 L", "nro_documento": "ING-0003" },
+    { "fecha": "2026-10-07", "ingreso": null, "salida": 15, "producto": "aceite vegetal 1 l", "nro_documento": "F001-00000123" },
+    { "fecha": "08/10/2026", "ingreso": 10, "salida": 10, "producto": "Arroz extra saco 50 kg", "nro_documento": "AJ-0007" },
+    { "fecha": "09/10/2026", "ingreso": 0, "salida": "", "producto": "Aceite vegetal 1 L", "nro_documento": "S/N" },
+    { "fecha": "31/02/2026", "ingreso": 5, "salida": null, "producto": "Arroz extra saco 50 kg", "nro_documento": "ING-0004" },
+    { "fecha": "2026-10-02", "ingreso": null, "salida": 30, "producto": "ARROZ EXTRA SACO 50 KG", "nro_documento": "V-0101" },
+    { "fecha": "2026-10-10", "ingreso": null, "salida": 20, "producto": "Arroz Extra Saco 50 Kg", "nro_documento": "V-0104" },
+    { "fecha": "2026-10-11", "ingreso": "diez", "salida": null, "producto": "Aceite vegetal 1 L", "nro_documento": "ING-0005" }
+  ]
+}

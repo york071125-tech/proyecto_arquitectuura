@@ -1,0 +1,366 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://abc-software.example/schemas/libros.schema.json",
+  "title": "DTO-libros · Registro de Ventas 14.1 e Inventario Permanente en Unidades Físicas 12.1 (PLE)",
+  "$defs": {
+    "RegistroVentasFila": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Una fila del Formato 14.1 «Registro de Ventas e Ingresos» (Anexo 1 RS 361-2015/SUNAT, mod. RS 042-2021). Cada propiedad indica su campo PLE. Salida de texto: campos separados por «|» y orden de campo 1 a 34.",
+      "required": [
+        "periodo",
+        "cuo",
+        "fechaEmision",
+        "tipoComprobante",
+        "serie",
+        "numero",
+        "importeTotal",
+        "estado"
+      ],
+      "properties": {
+        "periodo": {
+          "$ref": "common.schema.json#/$defs/PeriodoPle",
+          "description": "Campo 1."
+        },
+        "cuo": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40,
+          "pattern": "^[^&]+$",
+          "description": "Campo 2: Código Único de la Operación (no acepta «&»)."
+        },
+        "correlativoAsiento": {
+          "type": "string",
+          "pattern": "^[AMC][0-9A-Za-z]{1,9}$",
+          "description": "Campo 3: primer carácter A, M o C."
+        },
+        "fechaEmision": {
+          "type": "string",
+          "format": "date",
+          "description": "Campo 4."
+        },
+        "fechaVencimiento": {
+          "type": "string",
+          "format": "date",
+          "description": "Campo 5."
+        },
+        "tipoComprobante": {
+          "$ref": "common.schema.json#/$defs/TipoComprobanteTabla10",
+          "description": "Campo 6 (Tabla 10)."
+        },
+        "serie": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20,
+          "description": "Campo 7."
+        },
+        "numero": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20,
+          "description": "Campo 8."
+        },
+        "numeroFinal": {
+          "type": "string",
+          "pattern": "^[0-9]{1,20}$",
+          "description": "Campo 9: número final del rango (boletas consolidadas)."
+        },
+        "tipoDocIdentidadCliente": {
+          "$ref": "common.schema.json#/$defs/TipoDocIdentidad",
+          "description": "Campo 10."
+        },
+        "numeroDocIdentidadCliente": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 15,
+          "description": "Campo 11."
+        },
+        "razonSocialCliente": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "Campo 12."
+        },
+        "valorFacturadoExportacion": {
+          "$ref": "common.schema.json#/$defs/MontoConSigno",
+          "description": "Campo 13."
+        },
+        "baseImponibleGravada": {
+          "$ref": "common.schema.json#/$defs/MontoConSigno",
+          "description": "Campo 14 (no incluye el ISC)."
+        },
+        "descuentoBaseImponible": {
+          "$ref": "common.schema.json#/$defs/MontoConSigno",
+          "description": "Campo 15."
+        },
+        "igvIpm": {
+          "$ref": "common.schema.json#/$defs/MontoConSigno",
+          "description": "Campo 16."
+        },
+        "descuentoIgvIpm": {
+          "$ref": "common.schema.json#/$defs/MontoConSigno",
+          "description": "Campo 17."
+        },
+        "importeExonerada": {
+          "$ref": "common.schema.json#/$defs/MontoConSigno",
+          "description": "Campo 18."
+        },
+        "importeInafecta": {
+          "$ref": "common.schema.json#/$defs/MontoConSigno",
+          "description": "Campo 19."
+        },
+        "isc": {
+          "$ref": "common.schema.json#/$defs/MontoConSigno",
+          "description": "Campo 20."
+        },
+        "baseImponibleArrozPilado": {
+          "$ref": "common.schema.json#/$defs/MontoConSigno",
+          "description": "Campo 21."
+        },
+        "impuestoArrozPilado": {
+          "$ref": "common.schema.json#/$defs/MontoConSigno",
+          "description": "Campo 22."
+        },
+        "icbper": {
+          "$ref": "common.schema.json#/$defs/MontoConSigno",
+          "description": "ICBPER. ⚠ VERIFICAR: la estructura de 2015 no tiene columna propia; hasta contrastar el esquema PLE vigente se suma en el campo 23 (otros conceptos)."
+        },
+        "otrosConceptos": {
+          "$ref": "common.schema.json#/$defs/MontoConSigno",
+          "description": "Campo 23: otros conceptos, tributos y cargos que no forman parte de la base imponible."
+        },
+        "importeTotal": {
+          "$ref": "common.schema.json#/$defs/MontoConSigno",
+          "description": "Campo 24."
+        },
+        "moneda": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$",
+          "description": "Campo 25 (Tabla 4)."
+        },
+        "tipoCambio": {
+          "type": "string",
+          "pattern": "^[0-9]\\.[0-9]{3}$",
+          "description": "Campo 26: 1 entero y 3 decimales (\"1.000\" si PEN)."
+        },
+        "fechaEmisionModificado": {
+          "type": "string",
+          "format": "date",
+          "description": "Campo 27."
+        },
+        "tipoComprobanteModificado": {
+          "$ref": "common.schema.json#/$defs/TipoComprobanteTabla10",
+          "description": "Campo 28."
+        },
+        "serieModificado": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20,
+          "description": "Campo 29."
+        },
+        "numeroModificado": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20,
+          "description": "Campo 30."
+        },
+        "contratoProyecto": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 12,
+          "description": "Campo 31 (solo operadores de contratos de colaboración)."
+        },
+        "errorTipo1": {
+          "type": "string",
+          "enum": [
+            "1"
+          ],
+          "description": "Campo 32."
+        },
+        "indicadorMedioPago": {
+          "type": "string",
+          "enum": [
+            "1"
+          ],
+          "description": "Campo 33."
+        },
+        "estado": {
+          "type": "string",
+          "enum": [
+            "0",
+            "1",
+            "2",
+            "8",
+            "9"
+          ],
+          "description": "Campo 34: 1 operación del periodo, 2 inutilizado, 8 omitida de periodo anterior, 9 ya anotada de periodo anterior, 0 anotación sin efecto en IGV."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "tipoComprobante": {
+                "enum": [
+                  "07",
+                  "08"
+                ]
+              }
+            },
+            "required": [
+              "tipoComprobante"
+            ]
+          },
+          "then": {
+            "required": [
+              "fechaEmisionModificado",
+              "tipoComprobanteModificado",
+              "serieModificado",
+              "numeroModificado"
+            ]
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "moneda"
+            ]
+          },
+          "then": {
+            "required": [
+              "tipoCambio"
+            ]
+          }
+        }
+      ],
+      "x-reglas": [
+        "RN-084"
+      ]
+    },
+    "RegistroInventarioFisicoFila": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Una fila del Formato 12.1 «Registro del Inventario Permanente en Unidades Físicas» (Anexo 2 RS 042-2018/SUNAT). Sale de MovimientoInventario (ver docs/03 §4.9). El 13.1 valorizado es otro formato y NO se cubre aquí (RN-062).",
+      "required": [
+        "periodo",
+        "cuo",
+        "correlativoAsiento",
+        "codigoEstablecimiento",
+        "tipoExistencia",
+        "codigoPropioExistencia",
+        "fechaDocumento",
+        "tipoDocumento",
+        "serieDocumento",
+        "numeroDocumento",
+        "tipoOperacion",
+        "descripcionExistencia",
+        "unidadMedida",
+        "entradas",
+        "salidas",
+        "estado"
+      ],
+      "properties": {
+        "periodo": {
+          "$ref": "common.schema.json#/$defs/PeriodoPle",
+          "description": "Campo 1."
+        },
+        "cuo": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40,
+          "description": "Campo 2."
+        },
+        "correlativoAsiento": {
+          "type": "string",
+          "pattern": "^[AMC][0-9A-Za-z]{1,9}$",
+          "description": "Campo 3."
+        },
+        "codigoEstablecimiento": {
+          "type": "string",
+          "pattern": "^[0-9]{4,7}$",
+          "description": "Campo 4: 4 dígitos del anexo (\"9999\" si el almacén es de un tercero) + correlativo opcional."
+        },
+        "codigoCatalogoPropio": {
+          "type": "string",
+          "pattern": "^[0-9]$",
+          "description": "Campo 5: código del catálogo utilizado (Tabla 13)."
+        },
+        "tipoExistencia": {
+          "$ref": "common.schema.json#/$defs/TipoExistenciaTabla5",
+          "description": "Campo 6 (Tabla 5)."
+        },
+        "codigoPropioExistencia": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 24,
+          "description": "Campo 7."
+        },
+        "codigoCatalogoUtilizado": {
+          "type": "string",
+          "pattern": "^[1-8]$",
+          "description": "Campo 8: catálogo utilizado (Tabla 13; no acepta 9)."
+        },
+        "codigoExistenciaCatalogo": {
+          "type": "string",
+          "pattern": "^[0-9]{1,16}$",
+          "description": "Campo 9: código de la existencia en el catálogo (UNSPSC al 3.er nivel + 8 ceros)."
+        },
+        "fechaDocumento": {
+          "type": "string",
+          "format": "date",
+          "description": "Campo 10."
+        },
+        "tipoDocumento": {
+          "$ref": "common.schema.json#/$defs/TipoComprobanteTabla10",
+          "description": "Campo 11 (Tabla 10)."
+        },
+        "serieDocumento": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20,
+          "description": "Campo 12 (\"0\" si no existe)."
+        },
+        "numeroDocumento": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20,
+          "description": "Campo 13 (\"0\" si no existe)."
+        },
+        "tipoOperacion": {
+          "$ref": "common.schema.json#/$defs/TipoOperacionTabla12",
+          "description": "Campo 14 (Tabla 12)."
+        },
+        "descripcionExistencia": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "description": "Campo 15."
+        },
+        "unidadMedida": {
+          "$ref": "common.schema.json#/$defs/UnidadMedida",
+          "description": "Campo 16 (Tabla 6)."
+        },
+        "entradas": {
+          "$ref": "common.schema.json#/$defs/MontoConSigno",
+          "description": "Campo 17: positivo o 0.00."
+        },
+        "salidas": {
+          "$ref": "common.schema.json#/$defs/MontoConSigno",
+          "description": "Campo 18: negativo o 0.00 (excluyente con el 17)."
+        },
+        "estado": {
+          "type": "string",
+          "enum": [
+            "1",
+            "8",
+            "9"
+          ],
+          "description": "Campo 19."
+        }
+      },
+      "x-reglas": [
+        "RN-085"
+      ]
+    }
+  }
+}

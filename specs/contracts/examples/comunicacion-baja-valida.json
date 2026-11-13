@@ -1,0 +1,6 @@
+{
+  "documentos": [
+    { "tipoDocumento": "01", "serie": "F001", "correlativo": 2, "motivo": "Operación anulada por el cliente antes de la entrega" },
+    { "tipoDocumento": "01", "serie": "F001", "correlativo": 4, "motivo": "Error en la descripción del producto" }
+  ]
+}

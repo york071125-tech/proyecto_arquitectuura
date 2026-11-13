@@ -1,0 +1,18 @@
+{
+  "periodo": "20261000",
+  "cuo": "INV-0001",
+  "correlativoAsiento": "M1",
+  "codigoEstablecimiento": "0000",
+  "tipoExistencia": "77",
+  "codigoPropioExistencia": "ARR-001",
+  "fechaDocumento": "2026-10-05",
+  "tipoDocumento": "01",
+  "serieDocumento": "F001",
+  "numeroDocumento": "5",
+  "tipoOperacion": "01",
+  "descripcionExistencia": "Arroz extra saco 50 kg",
+  "unidadMedida": "BG",
+  "entradas": "0.00",
+  "salidas": "-30.00",
+  "estado": "1"
+}
